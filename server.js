@@ -25,43 +25,43 @@ const mainMenu = () => {
                 case 'View All Employees':
                     viewAllEmployees();
                     break;
-                case 'Add Employee':
-                    addEmployee();
-                    break;
-                case 'Update Employee Role':
-                    updateEmployeeRole();
-                    break;
+                // case 'Add Employee':
+                //     addEmployee();
+                //     break;
+                // case 'Update Employee Role':
+                //     updateEmployeeRole();
+                //     break;
                 case 'View All Roles':
                     viewAllRoles();
                     break;
-                case 'Add Role':
-                    addRole();
-                    break;
+                // case 'Add Role':
+                //     addRole();
+                //     break;
                 case 'View All Departments':
                     viewAllDepartments();
                     break;
-                case 'Add Department':
-                    addDepartment();
-                    break;
-                case 'Quit':
-                    quit();
-                    break;
+                // case 'Add Department':
+                //     addDepartment();
+                //     break;
+                // case 'Quit':
+                //     quit();
+                //     break;
             }
         })
 }
 
 const viewAllEmployees = () => {
-    const employeeTable = `SELECT employee.id AS ID, employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, CONCAT(manager.first_name, " ", manager.last_name) AS Manager
-    FROM employee
-    LEFT JOIN role ON employee.role_id = role.id
-    LEFT JOIN department ON role.department_id = department.id
-    LEFT JOIN employee manager ON employee.manager_id = manager.id`;
+    const employeeTable = `SELECT employees.id AS ID, employees.first_name AS 'First Name', employees.last_name AS 'Last Name', roles.title AS Title, departments.name AS Department, roles.salary AS Salary, CONCAT(manager.first_name, " ", manager.last_name) AS Manager
+    FROM employees
+    LEFT JOIN roles ON employees.role_id = roles.id
+    LEFT JOIN departments ON roles.department_id = departments.id
+    LEFT JOIN employees manager ON employees.manager_id = manager.id`;
     db.query(employeeTable, (err, result) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         } else {
-            console.table(employeeTable)
+            console.table(`\n`, result)
         };
         mainMenu();
     })
@@ -99,28 +99,28 @@ const viewAllEmployees = () => {
 // };
 
 const viewAllRoles = () => {
-    const rolesTable = `SELECT role.id AS ID, role.title AS Title, department.name AS Department, role.salary AS Salary 
-    FROM role
-    LEFT JOIN department ON role.department_id = department.id`;
+    const rolesTable = `SELECT roles.id AS ID, roles.title AS Title, departments.name AS Department, roles.salary AS Salary 
+    FROM roles
+    LEFT JOIN departments ON roles.department_id = departments.id`;
     db.query(rolesTable, (err, result) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         } else {
-            console.table(rolesTable)
+            console.table(`\n`, result)
         };
         mainMenu();
     })
 };
 
 const viewAllDepartments = () => {
-    const departmentTable = `SELECT department.id AS ID, department.name AS name FROM department`;
+    const departmentTable = `SELECT departments.id AS ID, departments.name AS name FROM departments`;
     db.query(departmentTable, (err, result) => {
         if (err) {
-            res.status(500).json({ error: err.message });
+            console.log('There was an error retreiving the database', err);
             return;
         } else {
-            console.table(departmentTable)
+            console.table(`\n`, result)
         };
         mainMenu();
     })
