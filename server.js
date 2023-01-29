@@ -117,7 +117,7 @@ const addEmployee = () => {
             choices: manager,
         }
     ]).then((answer) => {
-        db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${answer.employeeFirstName}', ${answer.employeeLastName}, ${answer.employeeRole}, ${answer.employeeManager})`, (err, result) => {
+        db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('${answer.employeeFirstName}', '${answer.employeeLastName}', ${answer.employeeRole}, ${answer.employeeManager})`, (err, result) => {
             if (err) {
                 console.log('There was an error adding this employee to the database', err);
                 return;
@@ -145,7 +145,7 @@ const updateEmployeeRole = () => {
             choices: roles
         },
     ]).then((answer) => {
-        db.query(`UPDATE employees SET role_id = '${answer.updateRole}' WHERE id = ${answer.updateEmployee}`, (err, result) => {
+        db.query(`UPDATE employees SET role_id = ${answer.updateRole} WHERE id = ${answer.updateEmployee}`, (err, result) => {
             if (err) {
                 console.log('There was an error updating this employee in the database', err);
             } else {
@@ -208,7 +208,7 @@ const addRole = () => {
             choices: departments,
         }
     ]).then((answer) => {
-        db.query(`INSERT INTO role (title, salary, department_id) VALUES ('${answer.roleTitle}', ${answer.roleSalary}, ${answer.roleDepartment})`, (err, result) => {
+        db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answer.roleTitle}', ${answer.roleSalary}, ${answer.roleDepartment})`, (err, result) => {
             if (err) {
                 console.log('There was an error adding this role to the database', err);
                 return;
