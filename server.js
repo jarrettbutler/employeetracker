@@ -16,7 +16,29 @@ const db = mysql.createConnection(
 //Creating an array with all the choices in it for roles and departments 
 //These roles and departments will become a strong that is used as the choices
 //In the add functions
+const departments = db.query(`SELECT * FROM departments`)
+.map(({ id, name }) => ({
+    name: name,
+    value: id
+}));
 
+const roles = db.query(`SELECT * FROM roles`)
+.map(({ id, title }) => ({
+    name: title,
+    value: id
+}));
+
+const managers = db.query(`SELECT * FROM employees`)
+.map(({ id, first_name, last_name }) => ({
+    name: `${first_name} ${last_name}`,
+    value: id
+}));
+
+const employees = db.query(`SELECT * FROM employees`)
+.map(({ id, first_name, last_name }) => ({
+    name: `${first_name} ${last_name}`,
+    value: id
+}));
 
 //Main menu prompt whenever a function is executed it will come back here
 const mainMenu = () => {
@@ -108,13 +130,13 @@ const addEmployee = () => {
             type: 'list',
             name: 'employeeRole',
             message: 'What is the employees role?',
-            choices: role,
+            choices: roles,
         },
         {
             type: 'list',
             name: 'employeeManager',
             message: 'What is the employees manager?',
-            choices: manager,
+            choices: managers,
         }
     ]).then((answer) => {
         db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('${answer.employeeFirstName}', '${answer.employeeLastName}', ${answer.employeeRole}, ${answer.employeeManager})`, (err, result) => {
