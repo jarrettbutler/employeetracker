@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const table = require('console.table')
 
+//The connection to the sql database
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -9,9 +10,10 @@ const db = mysql.createConnection(
         password: 'Router1!',
         database: 'employee_db'
     },
-    console.log(`Connected to the movies_db database.`)
+    console.log(`Connected to the employees_db database.`)
 );
 
+//Main menu prompt whenever a function is executed it will come back here
 const mainMenu = () => {
     inquirer.prompt([
         {
@@ -25,27 +27,27 @@ const mainMenu = () => {
                 case 'View All Employees':
                     viewAllEmployees();
                     break;
-                // case 'Add Employee':
-                //     addEmployee();
-                //     break;
-                // case 'Update Employee Role':
-                //     updateEmployeeRole();
-                //     break;
+                case 'Add Employee':
+                    addEmployee();
+                    break;
+                case 'Update Employee Role':
+                    updateEmployeeRole();
+                    break;
                 case 'View All Roles':
                     viewAllRoles();
                     break;
-                // case 'Add Role':
-                //     addRole();
-                //     break;
+                case 'Add Role':
+                    addRole();
+                    break;
                 case 'View All Departments':
                     viewAllDepartments();
                     break;
-                // case 'Add Department':
-                //     addDepartment();
-                //     break;
-                // case 'Quit':
-                //     quit();
-                //     break;
+                case 'Add Department':
+                    addDepartment();
+                    break;
+                case 'Quit':
+                    quit();
+                    break;
             }
         })
 }
@@ -67,37 +69,6 @@ const viewAllEmployees = () => {
     })
 };
 
-// const addEmployee = () => {
-//     inquirer.prompt([
-//         {
-//             type: 'Input',
-//             name: 'first_name',
-//             message: 'What is the first name of employee?',
-//             validate: (employeeFirstName) => {
-//                 if (employeeFirstName) {
-//                     return true;
-//                 } else {
-//                     console.log('Please enter the first name of the employee');
-//                     return false;
-//                 }
-//             },
-//         },
-//         {
-//             type: 'Input',
-//             name: 'last_name',
-//             message: 'What is the last name of employee?',
-//             validate: (employeeLastName) => {
-//                 if (employeeLastName) {
-//                     return true;
-//                 } else {
-//                     console.log('Please enter the last name of the employee');
-//                     return false;
-//                 }
-//             },
-//         },
-//     ]),
-// };
-
 const viewAllRoles = () => {
     const rolesTable = `SELECT roles.id AS ID, roles.title AS Title, departments.name AS Department, roles.salary AS Salary 
     FROM roles
@@ -113,6 +84,55 @@ const viewAllRoles = () => {
     })
 };
 
+const addRole = () => {
+    inquirer.prompt([
+        {
+            type: 'Input',
+            name: 'roleTitle',
+            message: 'What is the title of the role you would like to add??',
+            validate: (roleTitle) => {
+                if (roleTitle) {
+                    return true;
+                } else {
+                    console.log('Please enter a valid role title');
+                    return false;
+                }
+            },
+        },
+        {
+            type: 'number',
+            name: 'roleSalary',
+            message: 'What is the salary of the role?',
+            validate: (roleSalary) => {
+                if (roleSalary) {
+                    return true;
+                } else {
+                    console.log('Please enter a salary');
+                    return false;
+                }
+            },
+        },
+        {
+            type: 'list',
+            name: 'roleDepartment',
+            message: 'What department does this role belong to?',
+            choices: departments, 
+            validate: (roleDepartment) => {
+                if (roleDepartment) {
+                    return true;
+                } else {
+                    console.log('Please enter a valid department');
+                    return false;
+                }
+            },
+        }
+    ]). then((answer) => {
+        db.query(`INSERT INTO role (title, salary, department_id) VALUES ('${answer.roleTitle}', ${answer.roleSalary}, ${answer.roleDepartment})`)
+        console.log(`${answer.roleTitle} has been added to roles witht the salaray of ${answer.roleSalary} in the ${answer.roleDepartment} department`);
+        mainMenu();
+    })
+}
+
 const viewAllDepartments = () => {
     const departmentTable = `SELECT departments.id AS ID, departments.name AS name FROM departments`;
     db.query(departmentTable, (err, result) => {
@@ -126,5 +146,26 @@ const viewAllDepartments = () => {
     })
 };
 
+const addDepartment = () => {
+    inquirer.prompt([
+        {
+            type: 'Input',
+            name: 'department',
+            message: 'What is the name of the department you would like to add?',
+            validate: (department) => {
+                if (department) {
+                    return true;
+                } else {
+                    console.log('Please enter a valid department');
+                    return false;
+                }
+            },
+        }
+    ]). then((answer) => {
+        db.query(`INSERT INTO departments (name) VALUES ('${answer.department}')`)
+        console.log(`${answer.department} has been added to departments`);
+        mainMenu();
+    })
+}
 
 mainMenu();
