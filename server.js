@@ -23,6 +23,12 @@ db.query(`SELECT id, name FROM departments`, function (err, departments){
     const departmentName = departments.map(department => departments.name);
 })
 
+const departments = db.query(`SELECT * FROM departments`)
+.map(({ id, name }) => ({
+    name: name,
+    value: id
+}));
+
 db.query(`SELECT id, title FROM roles`, function (err, roles){
     if (err) {
     console.log(err);
