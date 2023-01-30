@@ -16,29 +16,33 @@ const db = mysql.createConnection(
 //Creating an array with all the choices in it for roles and departments 
 //These roles and departments will become a strong that is used as the choices
 //In the add functions
-const departments = db.query(`SELECT * FROM departments`)
-.map(({ id, name }) => ({
-    name: name,
-    value: id
-}));
+db.query(`SELECT id, name FROM departments`, function (err, departments){
+    if (err) {
+    console.log(err);
+    }
+    const departmentName = departments.map(department => departments.name);
+})
 
-const roles = db.query(`SELECT * FROM roles`)
-.map(({ id, title }) => ({
-    name: title,
-    value: id
-}));
+db.query(`SELECT id, title FROM roles`, function (err, roles){
+    if (err) {
+    console.log(err);
+    }
+    const jobs = roles.map(role => role.title);
+})
 
-const managers = db.query(`SELECT * FROM employees`)
-.map(({ id, first_name, last_name }) => ({
-    name: `${first_name} ${last_name}`,
-    value: id
-}));
+db.query(`SELECT id, title FROM roles`, function (err, roles){
+    if (err) {
+    console.log(err);
+    }
+    const jobs = roles.map(role => role.title);
+})
 
-const employees = db.query(`SELECT * FROM employees`)
-.map(({ id, first_name, last_name }) => ({
-    name: `${first_name} ${last_name}`,
-    value: id
-}));
+db.query(`SELECT id, title FROM roles`, function (err, roles){
+    if (err) {
+    console.log(err);
+    }
+    const jobs = roles.map(role => role.title);
+})
 
 //Main menu prompt whenever a function is executed it will come back here
 const mainMenu = () => {
@@ -130,7 +134,7 @@ const addEmployee = () => {
             type: 'list',
             name: 'employeeRole',
             message: 'What is the employees role?',
-            choices: roles,
+            choices: jobs,
         },
         {
             type: 'list',
@@ -227,9 +231,10 @@ const addRole = () => {
             type: 'list',
             name: 'roleDepartment',
             message: 'What department does this role belong to?',
-            choices: departments,
+            choices: departmentName,
         }
     ]).then((answer) => {
+        const selectedDepartment = departments.find(department => departments.name === answer.roleDepartment);
         db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answer.roleTitle}', ${answer.roleSalary}, ${answer.roleDepartment})`, (err, result) => {
             if (err) {
                 console.log('There was an error adding this role to the database', err);
