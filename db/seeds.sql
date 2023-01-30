@@ -1,4 +1,4 @@
-INSERT INTO departments (name)
+INSERT INTO departments (namee)
 VALUES  ('Sales'),
         ('Engineering'),
         ('Finance'),
