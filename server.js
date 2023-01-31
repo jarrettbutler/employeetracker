@@ -13,24 +13,53 @@ const db = mysql.createConnection(
     console.log(`Connected to the employees_db database.`)
 );
 
-//Creating an array with all the choices in it for roles and departments 
-//These roles and departments will become a strong that is used as the choices
-//In the add functions
+//Creates an array of jobs from the database
+const jobs = [];
+makeRoles = () => {
+db.query('SELECT roles.title FROM roles', function (err, result) {
+    if (err) {
+        console.log(err)
+    } else {
+        result.map(item => jobs.push(item.title))
+    }
+});
+};
 
-// let departments = [];
-// db.query(`SELECT departments.id, departments.name FROM departments`)
-// console.log(departments)
-// departments.map(({ id, name }) => ({
-//     name: name,
-//     value: id
-// }));
+//Creates an array of jobs from the database
+const managers = [];
+makeManagers = () => {
+db.query('SELECT * FROM employees WHERE manager_id IS NULL', function (err, result) {
+    if (err) {
+        console.log(err)
+    } else {
+        result.map(item => managers.push(item.first_name + ' ' + item.last_name))
+    }
+});
+};
 
-// connection.query(sqlstring, (err, res) => {
-//     let depts = [];
-//     res.map((department) => {
-//         depts.push(department.name)
-//     })
-// });
+//Creates an array of the employees
+const employees = [];
+makeEmployees = () => {
+db.query('SELECT * FROM employees', function (err, result) {
+    if (err) {
+        console.log(err)
+    } else {
+        result.map(item => employees.push(item.first_name + ' ' + item.last_name))
+    }
+});
+};
+
+//Creates an array of departments from the departments table
+const depts =[]
+makeDepartments = () => {
+db.query('SELECT departments.id, departments.namee FROM departments', function (err, result) {
+    if (err) {
+        console.log(err)
+    } else {
+        result.map(item => depts.push(item.namee))
+    }
+});
+};
 
 //Main menu prompt whenever a function is executed it will come back here
 const mainMenu = () => {
@@ -91,6 +120,8 @@ const viewAllEmployees = () => {
 
 //Function add employee based on user choice if err an error message will appear if not the message will appear and the employee will be added to the DB
 const addEmployee = () => {
+    makeRoles();
+    makeManagers();
     inquirer.prompt([
         {
             type: 'Input',
@@ -106,7 +137,7 @@ const addEmployee = () => {
             },
         },
         {
-            type: 'number',
+            type: 'Input',
             name: 'employeeLastName',
             message: 'What is the last name of the employee?',
             validate: (lastName) => {
@@ -131,20 +162,32 @@ const addEmployee = () => {
             choices: managers,
         }
     ]).then((answer) => {
-        db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('${answer.employeeFirstName}', '${answer.employeeLastName}', ${answer.employeeRole}, ${answer.employeeManager})`, (err, result) => {
-            if (err) {
-                console.log('There was an error adding this employee to the database', err);
-                return;
-            } else {
-                console.log(`${answer.employeeFirstName} ${answer.employeeLastName} has been added to employees as the ${answer.employeeRole} under ${answer.employeeManager}`);
-            };
+        //Splits the managers name
+        const splitManager = answer.employeeManager.split(" ");
+        //Gets the id of the role
+        db.query(`SELECT roles.id FROM roles WHERE roles.title = '${answer.employeeRole}'`, (err, results) => {
+            if (err) throw err;
+            //Gets the id of the manager
+            db.query(`SELECT employees.id FROM employees WHERE first_name = '${splitManager[0]}' AND last_name = '${splitManager[1]}'`, (err, result) => {
+                if (err) throw err;
+                db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('${answer.employeeFirstName}', '${answer.employeeLastName}', ${results[0].id}, ${result[0].id})`, (err, result) => {
+                    if (err) {
+                        console.log('There was an error adding this employee to the database', err);
+                        return;
+                    } else {
+                        console.log(`${answer.employeeFirstName} ${answer.employeeLastName} has been added to employees as the ${answer.employeeRole} under ${answer.employeeManager}`);
+                    };
+                });
+                mainMenu();
+            });
         });
-        mainMenu();
     });
 };
 
 //Function that updates a employee job based on user input if theres an error it will show a message on success a message will appear and the DB will be updated
 const updateEmployeeRole = () => {
+    makeEmployees();
+    makeRoles();
     inquirer.prompt([
         {
             type: 'list',
@@ -156,17 +199,24 @@ const updateEmployeeRole = () => {
             type: 'list',
             name: 'updateRole',
             message: 'What new role would you like to assign this employee?',
-            choices: roles
+            choices: jobs
         },
     ]).then((answer) => {
-        db.query(`UPDATE employees SET role_id = ${answer.updateRole} WHERE id = ${answer.updateEmployee}`, (err, result) => {
-            if (err) {
-                console.log('There was an error updating this employee in the database', err);
-            } else {
-                console.log(`${answer.updateEmployee} has been updated to `)
-            }
+        const splitEmployee = answer.updateEmployee.split(" ");
+        db.query(`SELECT roles.id FROM roles WHERE roles.title = '${answer.updateRole}'`, (err, results) => {
+            if (err) throw err;
+            db.query(`SELECT employees.id FROM employees WHERE first_name = '${splitEmployee[0]}' AND last_name = '${splitEmployee[1]}'`, (err, result) => {
+                if (err) throw err;
+                db.query(`UPDATE employees SET role_id = ${results[0].id} WHERE id = ${result[0].id}`, (err, result) => {
+                    if (err) {
+                        console.log('There was an error updating this employee in the database', err);
+                    } else {
+                        console.log(`${answer.updateEmployee} has been updated to `)
+                    }
+                });
+                mainMenu();
+            });
         });
-        mainMenu();
     });
 };
 
@@ -188,11 +238,7 @@ const viewAllRoles = () => {
 
 //Function add roles based on user choice if err an error message will appear if not the message will appear and the role will be added to the DB
 const addRole = () => {
-    db.query(`SELECT departments.id, departments.namee FROM departments`, (err, res) => {
-        let depts = [];
-        res.map((departments) => {
-            depts.push(departments.namee)
-        })
+    makeDepartments();
     inquirer.prompt([
         {
             type: 'Input',
@@ -227,16 +273,18 @@ const addRole = () => {
             choices: depts,
         }
     ]).then((answer) => {
-        db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answer.roleTitle}', ${answer.roleSalary}, ${answer.roleDepartment})`, (err, result) => {
-            if (err) {
-                console.log('There was an error adding this role to the database', err);
-                return;
-            } else {
-                console.log(`${answer.roleTitle} has been added to roles with the salaray of ${answer.roleSalary} in the ${answer.roleDepartment} department`);
-            };
+        db.query(`SELECT departments.id FROM departments WHERE departments.namee = '${answer.roleDepartment}'`, (err, results) => {
+            if (err) throw err;
+            db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answer.roleTitle}', ${answer.roleSalary}, ${results[0].id})`, (err, results) => {
+                if (err) {
+                    console.log('There was an error adding this role to the database', err);
+                    return;
+                } else {
+                    console.log(`${answer.roleTitle} has been added to roles with the salaray of ${answer.roleSalary} in the ${answer.roleDepartment} department`);
+                };
+            });
+            mainMenu();
         });
-    });
-        mainMenu();
     });
 };
 
