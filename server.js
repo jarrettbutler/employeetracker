@@ -15,54 +15,66 @@ const db = mysql.createConnection(
 
 //Creates an array of jobs from the database and the function to ensure it gets updated everytime it's used
 const jobs = [];
-makeRoles = () => {
-db.query('SELECT roles.title FROM roles', function (err, result) {
-    if (err) {
-        console.log(err)
-    } else {
-        result.map(item => jobs.push(item.title))
-    }
-});
+makeRoles = async () => {
+    await new Promise(resolve => {
+        db.query('SELECT roles.title FROM roles', function (err, result) {
+            if (err) {
+                console.log(err)
+            } else {
+                result.map(item => jobs.push(item.title))
+                resolve();
+            }
+        });
+    });
 };
 
 //Creates an array of jobs from the database and the function to ensure it gets updated everytime it's used
 const managers = [];
-makeManagers = () => {
-db.query('SELECT * FROM employees WHERE manager_id IS NULL', function (err, result) {
-    if (err) {
-        console.log(err)
-    } else {
-        result.map(item => managers.push(item.first_name + ' ' + item.last_name))
-    }
-});
+makeManagers = async () => {
+    await new Promise(resolve => {
+        db.query('SELECT * FROM employees WHERE manager_id IS NULL', function (err, result) {
+            if (err) {
+                console.log(err)
+            } else {
+                result.map(item => managers.push(item.first_name + ' ' + item.last_name))
+                resolve();
+            }
+        });
+    });
 };
 
 //Creates an array of the employees and the function to ensure it gets updated everytime it's used
 const employees = [];
-makeEmployees = () => {
-db.query('SELECT employees.first_name, employees.last_name FROM employees', function (err, result) {
-    if (err) {
-        console.log(err)
-    } else {
-        result.map(item => employees.push(item.first_name + ' ' + item.last_name))
-    }
-});
+makeEmployees = async () => {
+    await new Promise(resolve => {
+        db.query('SELECT employees.first_name, employees.last_name FROM employees', function (err, result) {
+            if (err) {
+                console.log(err)
+            } else {
+                result.map(item => employees.push(item.first_name + ' ' + item.last_name))
+                resolve();
+            }
+        });
+    });
 };
 
 //Creates an array of departments from the departments table and the function to ensure it gets updated everytime it's used
-const depts =[]
-makeDepartments = () => {
-db.query('SELECT departments.id, departments.namee FROM departments', function (err, result) {
-    if (err) {
-        console.log(err)
-    } else {
-        result.map(item => depts.push(item.namee))
-    }
-});
+const depts = []
+makeDepartments = async () => {
+    await new Promise(resolve => {
+        db.query('SELECT departments.id, departments.namee FROM departments', function (err, result) {
+            if (err) {
+                console.log(err)
+            } else {
+                result.map(item => depts.push(item.namee))
+                resolve();
+            }
+        });
+    });
 };
 
 //Main menu prompt whenever a function is executed it will come back here
-const mainMenu = () => {
+const mainMenu = async () => {
     inquirer.prompt([
         {
             type: 'list',
@@ -101,7 +113,7 @@ const mainMenu = () => {
 }
 
 //Allows us to view all employees and information if there is an error and error message will appear if sucessful a table will display
-const viewAllEmployees = () => {
+const viewAllEmployees = async () => {
     const employeeTable = `SELECT employees.id AS ID, employees.first_name AS 'First Name', employees.last_name AS 'Last Name', roles.title AS Title, departments.namee AS Department, roles.salary AS Salary, CONCAT(manager.first_name, " ", manager.last_name) AS Manager
     FROM employees
     LEFT JOIN roles ON employees.role_id = roles.id
@@ -119,9 +131,9 @@ const viewAllEmployees = () => {
 };
 
 //Function add employee based on user choice if err an error message will appear if not the message will appear and the employee will be added to the DB
-const addEmployee = () => {
-    makeRoles();
-    makeManagers();
+const addEmployee = async () => {
+    await makeRoles();
+    await makeManagers();
     inquirer.prompt([
         {
             type: 'Input',
@@ -185,9 +197,9 @@ const addEmployee = () => {
 };
 
 //Function that updates a employee job based on user input if theres an error it will show a message on success a message will appear and the DB will be updated
-const updateEmployeeRole = () => {
-    makeEmployees();
-    makeRoles();
+const updateEmployeeRole = async () => {
+    await makeEmployees();
+    await makeRoles();
     inquirer.prompt([
         {
             type: 'list',
@@ -225,7 +237,7 @@ const updateEmployeeRole = () => {
 };
 
 //Allows us to view all roles and information if there is an error and error message will appear if sucessful a table will display
-const viewAllRoles = () => {
+const viewAllRoles = async () => {
     const rolesTable = `SELECT roles.id AS ID, roles.title AS Title, departments.namee AS Department, roles.salary AS Salary 
     FROM roles
     LEFT JOIN departments ON roles.department_id = departments.id`;
@@ -241,8 +253,8 @@ const viewAllRoles = () => {
 };
 
 //Function add roles based on user choice if err an error message will appear if not the message will appear and the role will be added to the DB
-const addRole = () => {
-    makeDepartments();
+const addRole = async () => {
+    await makeDepartments();
     inquirer.prompt([
         {
             type: 'Input',
@@ -294,7 +306,7 @@ const addRole = () => {
 
 
 //Allows us to view all departments if there is an error and error message will appear if sucessful a table will display
-const viewAllDepartments = () => {
+const viewAllDepartments = async () => {
     const departmentTable = `SELECT departments.id AS ID, departments.namee AS name FROM departments`;
     db.query(departmentTable, (err, result) => {
         if (err) {
@@ -308,7 +320,7 @@ const viewAllDepartments = () => {
 };
 
 //Function add departments based on user choice if err an error message will appear if not the message will appear and the department will be added to the DB
-const addDepartment = () => {
+const addDepartment = async () => {
     inquirer.prompt([
         {
             type: 'Input',
