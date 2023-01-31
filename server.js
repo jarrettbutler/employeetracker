@@ -202,11 +202,15 @@ const updateEmployeeRole = () => {
             choices: jobs,
         },
     ]).then((answer) => {
+        //Splits the employees name
         const splitEmployee = answer.updateEmployee.split(" ");
+        //Gets the id of the selected role
         db.query(`SELECT roles.id FROM roles WHERE roles.title = '${answer.updateRole}'`, (err, results) => {
             if (err) throw err;
+            //Get the id of the employee
             db.query(`SELECT employees.id FROM employees WHERE first_name = '${splitEmployee[0]}' AND last_name = '${splitEmployee[1]}'`, (err, result) => {
                 if (err) throw err;
+                //Update function for SQL
                 db.query(`UPDATE employees SET role_id = ${results[0].id} WHERE id = ${result[0].id}`, (err, result) => {
                     if (err) {
                         console.log('There was an error updating this employee in the database', err);
