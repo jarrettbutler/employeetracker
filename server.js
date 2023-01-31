@@ -13,7 +13,7 @@ const db = mysql.createConnection(
     console.log(`Connected to the employees_db database.`)
 );
 
-//Creates an array of jobs from the database
+//Creates an array of jobs from the database and the function to ensure it gets updated everytime it's used
 const jobs = [];
 makeRoles = () => {
 db.query('SELECT roles.title FROM roles', function (err, result) {
@@ -25,7 +25,7 @@ db.query('SELECT roles.title FROM roles', function (err, result) {
 });
 };
 
-//Creates an array of jobs from the database
+//Creates an array of jobs from the database and the function to ensure it gets updated everytime it's used
 const managers = [];
 makeManagers = () => {
 db.query('SELECT * FROM employees WHERE manager_id IS NULL', function (err, result) {
@@ -37,19 +37,19 @@ db.query('SELECT * FROM employees WHERE manager_id IS NULL', function (err, resu
 });
 };
 
-//Creates an array of the employees
-const employeesList = [];
+//Creates an array of the employees and the function to ensure it gets updated everytime it's used
+const employees = [];
 makeEmployees = () => {
-db.query('SELECT * FROM employees', function (err, result) {
+db.query('SELECT employees.first_name, employees.last_name FROM employees', function (err, result) {
     if (err) {
         console.log(err)
     } else {
-        result.map(item => employeesList.push(item.first_name + ' ' + item.last_name))
+        result.map(item => employees.push(item.first_name + ' ' + item.last_name))
     }
 });
 };
 
-//Creates an array of departments from the departments table
+//Creates an array of departments from the departments table and the function to ensure it gets updated everytime it's used
 const depts =[]
 makeDepartments = () => {
 db.query('SELECT departments.id, departments.namee FROM departments', function (err, result) {
@@ -193,13 +193,13 @@ const updateEmployeeRole = () => {
             type: 'list',
             name: 'updateEmployee',
             message: 'What employee would you like to update?',
-            choices: employeesList
+            choices: employees,
         },
         {
             type: 'list',
             name: 'updateRole',
             message: 'What new role would you like to assign this employee?',
-            choices: jobs
+            choices: jobs,
         },
     ]).then((answer) => {
         const splitEmployee = answer.updateEmployee.split(" ");
