@@ -23,7 +23,7 @@ https://github.com/jarrettbutler/employeetracker
 
 or watch the video here:
 
-
+https://drive.google.com/file/d/1avt9SLA_7ckTD4rLxwFBF1xZg0i4OZkZ/view
 
 ## Usage
 In this app you can go through a menu options and; view, add and update employees, view and add roles, and view and add departments. 
