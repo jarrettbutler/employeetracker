@@ -38,13 +38,13 @@ db.query('SELECT * FROM employees WHERE manager_id IS NULL', function (err, resu
 };
 
 //Creates an array of the employees
-const employees = [];
+const employeesList = [];
 makeEmployees = () => {
 db.query('SELECT * FROM employees', function (err, result) {
     if (err) {
         console.log(err)
     } else {
-        result.map(item => employees.push(item.first_name + ' ' + item.last_name))
+        result.map(item => employeesList.push(item.first_name + ' ' + item.last_name))
     }
 });
 };
@@ -193,7 +193,7 @@ const updateEmployeeRole = () => {
             type: 'list',
             name: 'updateEmployee',
             message: 'What employee would you like to update?',
-            choices: employees
+            choices: employeesList
         },
         {
             type: 'list',
